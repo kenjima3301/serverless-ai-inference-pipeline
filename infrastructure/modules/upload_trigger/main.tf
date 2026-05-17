@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "this" {
-  bucket = "${var.bucket_name}-${var.env}-KLTN2026"
+  bucket = "${var.bucket_name}-${var.env}-kltn2026"
   tags = {
     Name        = "Image storage"
     Environment = var.env
@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_sqs_queue" "this" {
-  name                      = "${var.queue_name}-${var.env}-KLTN2026"
+  name                      = "${var.queue_name}-${var.env}-kltn2026"
   message_retention_seconds = 345600
 }
 
