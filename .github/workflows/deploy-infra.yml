@@ -54,7 +54,7 @@ jobs:
 
   # Job 2: Build and push Docker image if there are changes in the app directory
   build-and-push:
-   needs: [detect_changes, create-ecr]
+    needs: [detect_changes, create-ecr]
     if: |
       always() &&
       needs.detect_changes.outputs.app == 'true' &&
