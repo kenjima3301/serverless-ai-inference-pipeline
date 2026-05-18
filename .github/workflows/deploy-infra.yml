@@ -30,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name Set Image Tag for Terraform
+      - name: Set Image Tag for Terraform
         id: vars
         run: |
           calculate_sha=$(git rev-parse --short ${{ github.sha }})
