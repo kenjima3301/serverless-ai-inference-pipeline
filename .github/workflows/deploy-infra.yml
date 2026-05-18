@@ -21,15 +21,15 @@ jobs:
       infra: ${{ steps.filter.outputs.infra }}
       app: ${{ steps.filter.outputs.app }}
     steps:
-      uses: actions/checkout@v4
-      uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          infra:
-            - 'infrastructure/**'
-          app:
-            - 'app/**'
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infrastructure/**'
+            app:
+              - 'app/**'
   
   # Job 1: Deploy infrastructure if there are changes in the infrastructure directory
   create-ecr:
@@ -109,5 +109,5 @@ jobs:
       - run: terraform init
       - name: Terraform Apply
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
+          TF_VAR_image_tag: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
       - run: terraform apply -auto-approve
