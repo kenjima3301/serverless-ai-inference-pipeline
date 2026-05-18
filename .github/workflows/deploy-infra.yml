@@ -4,54 +4,110 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'infrastructure/**'
   pull_request:
     branches:
       - main
-    paths:
-      - 'infrastructure/**'
   workflow_dispatch:
 
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: "dev-ai-model-repo"
+
 jobs:
-  deploy:
-    name: "Terraform"
+  # Job 0: Detect changes in the infrastructure & app directories
+  detect_changes:
     runs-on: ubuntu-latest
-
-    env:
-      AWS_REGION: ap-southeast-1
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      uses: actions/checkout@v4
+      uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          infra:
+            - 'infrastructure/**'
+          app:
+            - 'app/**'
+  
+  # Job 1: Deploy infrastructure if there are changes in the infrastructure directory
+  create-ecr:
+    needs: detect_changes
+    if: needs.detect_changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./infrastructure/envs/dev
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set Image Tag for Terraform
-        id: vars
-        run: |
-          calculate_sha=$(git rev-parse --short ${{ github.sha }})
-          echo "TF_VAR_image_tag=$calculate_sha" >> $GITHUB_ENV
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.15.3
+      - run: terraform init
+      - run: terraform apply -target="aws_ecr_repository.dev_ai_model_repo" -auto-approve    
 
-      - name: Terraform Init
-        run: terraform init
+  # Job 2: Build and push Docker image if there are changes in the app directory
+  build-and-push:
+   needs: [detect_changes, create-ecr]
+    if: |
+      always() &&
+      needs.detect_changes.outputs.app == 'true' &&
+      (needs.create-ecr.result == 'success' || needs.create-ecr.result == 'skipped')
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.vars.outputs.COMMIT_SHORT_SHA }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set short SHA for image tag
+        id: vars
+        run: echo "COMMIT_SHORT_SHA=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.vars.outputs.COMMIT_SHORT_SHA }}
+        working-directory: ./app
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
-
+  # Job 3: Deploy infrastructure if there are changes in the infrastructure directory or if the Docker image was built successfully
+  deploy-infra:
+    needs: [detect_changes, build-and-push]
+    if: |
+      always() &&
+      (needs.detect_changes.outputs.infra == 'true' || needs.detect_changes.outputs.app == 'true') &&
+      (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infrastructure/envs/dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.3
+      - run: terraform init
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
+      - run: terraform apply -auto-approve
