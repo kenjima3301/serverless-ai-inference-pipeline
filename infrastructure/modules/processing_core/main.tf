@@ -28,7 +28,7 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_policy" "this" {
-  name = "test_policy"
+  name = "lambda_ai_model_policy"
   path = "/"
 
   policy = jsonencode({
@@ -71,12 +71,14 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_policy" {
 
 # Group 3
 resource "aws_lambda_function" "this" {
-  function_name = "${var.env}-ai-processor"
-  role          = aws_iam_role.this.arn
-  package_type  = "Image"
-  image_uri     = var.ecr_image_uri
-  timeout       = 30
-  memory_size   = 1024
+  function_name                  = "${var.env}-ai-processor"
+  role                           = aws_iam_role.this.arn
+  package_type                   = "Image"
+  image_uri                      = var.ecr_image_uri
+  timeout                        = 30
+  memory_size                    = 1024
+  reserved_concurrent_executions = 3
+
   environment {
     variables = {
       DYNAMODB_TABLE = var.dynamodb_table_name

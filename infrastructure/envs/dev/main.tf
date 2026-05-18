@@ -22,3 +22,10 @@ module "processing_core" {
   dynamodb_table_name = module.my_database.table_name
   ecr_image_uri       = "${module.container_registry.repository_url}:${var.image_tag}"
 }
+
+module "client_api" {
+  source              = "../../modules/client_api"
+  env                 = "dev"
+  s3_bucket_name      = module.upload_trigger.s3_bucket_name
+  dynamodb_table_name = module.my_database.table_name
+}
