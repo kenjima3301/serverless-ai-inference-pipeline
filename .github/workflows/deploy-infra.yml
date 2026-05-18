@@ -50,7 +50,7 @@ jobs:
         with:
           terraform_version: 1.15.3
       - run: terraform init
-      - run: terraform apply -target="aws_ecr_repository.dev_ai_model_repo" -auto-approve    
+      - run: terraform apply -target="aws_ecr_repository.ai_model_repo" -auto-approve    
 
   # Job 2: Build and push Docker image if there are changes in the app directory
   build-and-push:
