@@ -110,4 +110,4 @@ jobs:
       - name: Terraform Apply
         env:
           TF_VAR_image_tag: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
-      - run: terraform apply -auto-approve
+        run: terraform apply -auto-approve
