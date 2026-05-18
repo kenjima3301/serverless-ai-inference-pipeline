@@ -34,7 +34,7 @@ jobs:
   # Job 1: Deploy infrastructure if there are changes in the infrastructure directory
   create-ecr:
     needs: detect_changes
-    if: needs.detect_changes.outputs.infra == 'true'
+    if: needs.detect_changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,7 +50,7 @@ jobs:
         with:
           terraform_version: 1.15.3
       - run: terraform init
-      - run: terraform apply -target="aws_ecr_repository.ai_model_repo" -auto-approve    
+      - run: terraform apply -target="module.container_registry" -auto-approve    
 
   # Job 2: Build and push Docker image if there are changes in the app directory
   build-and-push:
