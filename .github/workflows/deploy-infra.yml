@@ -20,6 +20,7 @@ jobs:
     outputs:
       infra: ${{ steps.filter.outputs.infra }}
       app: ${{ steps.filter.outputs.app }}
+      api: ${{ steps.filter.outputs.api }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -30,6 +31,8 @@ jobs:
               - 'infrastructure/**'
             app:
               - 'app/**'
+            api:
+              - 'api/**'
   
   # Job 1: Deploy infrastructure if there are changes in the infrastructure directory
   create-ecr:
@@ -90,7 +93,7 @@ jobs:
     needs: [detect_changes, build-and-push]
     if: |
       always() &&
-      (needs.detect_changes.outputs.infra == 'true' || needs.detect_changes.outputs.app == 'true') &&
+      (needs.detect_changes.outputs.infra == 'true' || needs.detect_changes.outputs.app == 'true' || needs.detect_changes.outputs.api == 'true') &&
       (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
     runs-on: ubuntu-latest
     defaults:

@@ -77,7 +77,7 @@ resource "aws_lambda_function" "this" {
   image_uri                      = var.ecr_image_uri
   timeout                        = 30
   memory_size                    = 1024
-  reserved_concurrent_executions = 3
+  reserved_concurrent_executions = 20
 
   environment {
     variables = {
