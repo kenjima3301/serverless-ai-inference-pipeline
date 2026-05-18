@@ -85,7 +85,7 @@ resource "aws_lambda_function" "result" {
   function_name    = "${var.env}-api-result"
   role             = aws_iam_role.this.arn
   runtime          = "python3.10"
-  handler          = "upload_url.lambda_handler"
+  handler          = "get_result.lambda_handler"
 
   environment {
     variables = {
