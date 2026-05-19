@@ -1,53 +1,85 @@
-# Serverless AI Inference Pipeline 🚀
+# 🚀 Serverless Event-Driven MLOps Pipeline on AWS
 
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
 
 ## 📌 Tổng quan dự án (Project Overview)
-Dự án xây dựng hạ tầng Cloud hoàn toàn tự động (IaC) để triển khai mô hình AI Phân loại thuốc (CNN + Transformer). 
-Hệ thống sử dụng kiến trúc **Event-Driven Serverless** giúp xử lý hàng ngàn ảnh cùng lúc mà không bị quá tải, đồng thời tối ưu chi phí (FinOps) thông qua mô hình Pay-as-you-go của AWS.
+Một hệ thống tự động hóa hoàn toàn (End-to-End) để triển khai mô hình AI Phân loại thuốc. Hệ thống sử dụng kiến trúc Event-Driven Serverless giúp xử lý hàng ngàn ảnh cùng lúc mà không bị quá tải, tối ưu chi phí (FinOps) thông qua mô hình Pay-per-request và bảo mật cao với AWS IAM Least Privilege.
 
-## 🏗️ Kiến trúc hệ thống (Architecture)
-*(Sẽ chèn hình ảnh Architecture Diagram vào đây sau)*
+Toàn bộ hạ tầng được viết dưới dạng mã (IaC) bằng Terraform và triển khai qua GitHub Actions CI/CD Pipeline.
 
-**Luồng dữ liệu (Data Flow):**
-1. Người dùng tải ảnh lên **Amazon S3** (thông qua Presigned URL).
-2. S3 kích hoạt sự kiện, gửi thông điệp vào **Amazon SQS** Queue (đóng vai trò giảm xóc/buffer).
-3. **AWS Lambda** (chạy Docker Container chứa AI Model) pull message từ SQS để suy luận.
-4. Kết quả nhận diện được lưu trữ bền vững tại **Amazon DynamoDB**.
+## 🏗️ Kiến trúc hệ thống (Architecture Flow)
 
-## 📁 Cấu trúc Module (Infrastructure as Code)
-Dự án áp dụng triết lý thiết kế Module độc lập, tránh Circular Dependency:
-- `container_registry`: Khởi tạo AWS ECR (Tích hợp Trivy Image Scanning).
-- `database`: Cấu hình DynamoDB (On-Demand Capacity).
-- `upload_trigger`: Cấu hình S3 và SQS Queue nối tiếp.
-- `processing_core`: Cấu hình AWS Lambda (Container Image) và IAM Roles (Least Privilege).
+Hệ thống được chia làm 2 luồng chính:
 
-## 🚀 Hướng dẫn triển khai (Deployment)
+**1. Luồng Giao tiếp Client (Synchronous API):**
+- `GET /upload-url`: Client gọi API Gateway -> Lambda trả về S3 Presigned URL. Client dùng Presigned URL để PUT ảnh trực tiếp lên S3 (vượt qua giới hạn payload 10MB của API Gateway).
+- `GET /result`: Client Long-polling API Gateway -> Lambda truy vấn DynamoDB để lấy kết quả AI.
 
-### Yêu cầu cài đặt (Prerequisites)
-- Terraform >= 1.5.0
-- AWS CLI đã cấu hình credentials.
-- Docker & Python 3.10 (Dành cho việc test local).
+**2. Luồng Xử lý AI (Asynchronous Event-Driven):**
+- S3 Bucket nhận ảnh -> Phát sự kiện (Event Trigger) vào SQS Queue (Đóng vai trò giảm xóc cho hệ thống).
+- Lambda Processing Core (chạy Docker Container chứa AI Model từ ECR) kéo message từ SQS.
+- Xử lý nhận diện ảnh và ghi kết quả vào DynamoDB.
 
-### Các bước chạy thực tế
-1. **Khởi tạo hạ tầng lưu trữ (Stateful):**
-   ```bash
-   cd infra/envs/dev
-   terraform init
-   terraform apply -target=module.container_registry -target=module.database
-   ```
-2. **Build & Push AI Model lên ECR:** (Được quản lý tự động qua GitHub Actions).
-3. **Triển khai hạ tầng xử lý (Stateless):**
-   ```bash
-   terraform apply
-   ```
+## 📁 Cấu trúc Module Terraform (Infrastructure as Code)
+Dự án áp dụng triết lý Modular Design, cô lập rủi ro giữa các tài nguyên:
+- `database`: DynamoDB (On-Demand Capacity).
+- `container_registry`: AWS ECR (Kích hoạt Scan on push).
+- `upload_trigger`: S3 Bucket, SQS Queue và S3 Event Notification.
+- `processing_core`: Lambda (Docker Image) xử lý AI + IAM Role.
+- `client_api`: HTTP API Gateway v2 + 2 Lambdas (dùng `archive_file` nén code tự động).
+
+## 🔄 CI/CD Pipeline (GitOps Workflow)
+Pipeline giải quyết lỗi Circular Dependency giữa ECR và Lambda thông qua 3 Jobs nối tiếp:
+1. **Job 1 (ECR Bootstrap):** Terraform sử dụng cờ `-target` để chỉ khởi tạo kho chứa ECR (Kho rỗng).
+2. **Job 2 (Build & Push):** Đóng gói ứng dụng AI thành Docker Image, đánh tag bằng Short Git SHA và push lên ECR.
+3. **Job 3 (Full Infrastructure Deploy):** Terraform triển khai toàn bộ hạ tầng còn lại (S3, SQS, DynamoDB, API Gateway) và liên kết Lambda với Image Tag mới nhất từ Job 2.
 
 ## 🔒 Quản lý chi phí & Bảo mật (FinOps & DevSecOps)
-- Giới hạn Concurrency của Lambda để chống sập Database và kiểm soát hóa đơn AWS.
-- Quét lỗ hổng tự động (Scan on push) trên ECR.
-- Quản lý State Terraform an toàn trên S3 Backend + DynamoDB State Locking.
+- **Concurrency Limit:** Giới hạn số lượng Lambda AI chạy song song để chống nghẽn DynamoDB và kiểm soát hóa đơn AWS.
+- **IAM Least Privilege:** Các policy được thiết lập chặt chẽ cho GitHub Actions Bot (chặn quyền đọc data) và các Lambda Roles.
+- **Short-lived Credentials:** S3 Presigned URL chỉ sống trong 5 phút để bảo vệ bucket khỏi các cuộc tấn công.
+
+## 📖 Hướng dẫn sử dụng API (API Documentation)
+
+Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tương tác an toàn với Cloud.
+
+### 1. Xin cấp quyền Upload (Presigned URL)
+- **Endpoint:** `GET /upload-url`
+- **Mô tả:** Trả về một URL tạm thời (sống trong 5 phút) để Client đẩy file trực tiếp lên S3.
+- **Response (200 OK):**
+  ```json
+  {
+    "upload_url": "https://ai-upload-images-dev...s3.amazonaws.com/uuid.jpg?X-Amz-Signature=...",
+    "image_id": "uuid.jpg",
+    "message": "Dùng upload_url để PUT file ảnh lên bằng Binary body."
+  }
+  ```
+
+### 2. Upload Ảnh (Thực hiện bởi Client)
+- **Method:** `PUT`
+- **URL:** Là `upload_url` nhận được từ bước 1.
+- **Headers:** `Content-Type: image/jpeg` *(Bắt buộc, nếu thiếu AWS sẽ báo lỗi Signature).*
+- **Body:** File ảnh dạng Binary.
+
+### 3. Lấy kết quả AI (Long Polling)
+- **Endpoint:** `GET /result?image_id={image_id}`
+- **Mô tả:** Client gọi liên tục (mỗi 2-3s) bằng `image_id` nhận được ở Bước 1 để lấy kết quả.
+- **Response - Đang xử lý (202 Accepted):**
+  ```json
+  {
+    "status": "PENDING", 
+    "message": "Đang xử lý..."
+  }
+  ```
+- **Response - Hoàn thành (200 OK):**
+  ```json
+  {
+    "status": "SUCCESS", 
+    "result": "Panadol (Confidence: 99%)"
+  }
+  ```
 
