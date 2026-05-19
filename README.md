@@ -54,20 +54,20 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
   ```json
   {
     "upload_url": "https://ai-upload-images-dev...s3.amazonaws.com/uuid.jpg?X-Amz-Signature=...",
-    "image_id": "uuid.jpg",
-    "message": "Dùng upload_url để PUT file ảnh lên bằng Binary body."
+    "request_id": "uuid.zip",
+    "message": "Use upload_url to PUT file as binary body. Expires in 5 minutes."
   }
   ```
 
-### 2. Upload Ảnh (Thực hiện bởi Client)
+### 2. Upload dữ liệu phân loại (Thực hiện bởi Client)
 - **Method:** `PUT`
 - **URL:** Là `upload_url` nhận được từ bước 1.
-- **Headers:** `Content-Type: image/jpeg` *(Bắt buộc, nếu thiếu AWS sẽ báo lỗi Signature).*
-- **Body:** File ảnh dạng Binary.
+- **Headers:** `Content-Type: application/zip` *(Bắt buộc, nếu thiếu AWS sẽ báo lỗi Signature).*
+- **Body:** File zip dạng Binary (chứa 2 ảnh chụp ở các góc độ khác nhau của thuốc).
 
 ### 3. Lấy kết quả AI (Long Polling)
-- **Endpoint:** `GET /result?image_id={image_id}`
-- **Mô tả:** Client gọi liên tục (mỗi 2-3s) bằng `image_id` nhận được ở Bước 1 để lấy kết quả.
+- **Endpoint:** `GET /result?request_id={request_id}`
+- **Mô tả:** Client gọi liên tục (mỗi 2-3s) bằng `request_id` nhận được ở Bước 1 để lấy kết quả.
 - **Response - Đang xử lý (202 Accepted):**
   ```json
   {
@@ -79,7 +79,8 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
   ```json
   {
     "status": "SUCCESS", 
-    "result": "Panadol (Confidence: 99%)"
+    "result": "Panadol (Confidence: 99%)",
+    "drug_code": "VN-12345-19"
   }
   ```
 
