@@ -14,9 +14,8 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 ort_session = ort.InferenceSession("model.onnx")
 
-with open('class_to_idx.json', 'r', encoding='utf-8') as f:
-    class_to_idx = json.load(f)
-    idx_to_class = {int(v): k for k, v in class_to_idx.items()}
+with open('class_info.json', 'r', encoding='utf-8') as f:
+    idx_to_info = json.load(f)
 
 def apply_clahe_rgb(img_array):
     lab = cv2.cvtColor(img_array, cv2.COLOR_RGB2LAB)
@@ -97,7 +96,9 @@ def lambda_handler(event, context):
                 
                 top_class = int(np.argmax(probabilities))
                 top_prob = float(probabilities[top_class])
-                drug_name = idx_to_class.get(top_class, f"Class {top_class}")
+                drug_info = idx_to_info.get(str(top_class), {"name": f"Class {top_class}", "drug_code": "N/A"})
+                drug_name = drug_info["name"]
+                drug_code = drug_info["drug_code"]
 
                 # 6. Ghi kết quả vào DynamoDB
                 result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
@@ -105,7 +106,8 @@ def lambda_handler(event, context):
                 table.put_item(Item={
                     'image_id': object_key,
                     'status': 'SUCCESS',
-                    'result': result_text
+                    'result': result_text,
+                    'drug_code': drug_code
                 })
                 
                 print(f"Hoàn tất! Đã lưu DynamoDB: {object_key} -> {result_text}")
