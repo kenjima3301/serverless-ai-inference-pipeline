@@ -14,6 +14,10 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 ort_session = ort.InferenceSession("model.onnx")
 
+with open('class_to_idx.json', 'r', encoding='utf-8') as f:
+    class_to_idx = json.load(f)
+    idx_to_class = {int(v): k for k, v in class_to_idx.items()}
+
 def apply_clahe_rgb(img_array):
     lab = cv2.cvtColor(img_array, cv2.COLOR_RGB2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
@@ -93,12 +97,14 @@ def lambda_handler(event, context):
                 
                 top_class = int(np.argmax(probabilities))
                 top_prob = float(probabilities[top_class])
+                drug_name = idx_to_class.get(top_class, f"Class {top_class}")
 
                 # 6. Ghi kết quả vào DynamoDB
-                result_text = f"Class {top_class} (Confidence: {top_prob*100:.2f}%)"
+                result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
                 
                 table.put_item(Item={
                     'image_id': object_key,
+                    'status': 'SUCCESS',
                     'result': result_text
                 })
                 
