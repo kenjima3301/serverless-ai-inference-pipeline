@@ -1,9 +1,9 @@
 resource "aws_dynamodb_table" "this" {
   name         = "${var.env}-${var.table_name}"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "image_id"
+  hash_key     = "request_id"
   attribute {
-    name = "image_id"
+    name = "request_id"
     type = "S"
   }
   tags = merge(
