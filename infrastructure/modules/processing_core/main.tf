@@ -76,7 +76,7 @@ resource "aws_lambda_function" "this" {
   package_type  = "Image"
   image_uri     = var.ecr_image_uri
   timeout       = 30
-  memory_size   = 1024
+  memory_size   = 4096
   # reserved_concurrent_executions = 20
 
   environment {
