@@ -40,7 +40,7 @@ resource "aws_s3_bucket_notification" "this" {
   queue {
     queue_arn     = aws_sqs_queue.this.arn
     events        = ["s3:ObjectCreated:*"]
-    filter_suffix = ".jpg"
+    filter_suffix = ".zip"
   }
   depends_on = [aws_sqs_queue_policy.this]
 }

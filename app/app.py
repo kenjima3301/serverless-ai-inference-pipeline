@@ -104,7 +104,7 @@ def lambda_handler(event, context):
                 result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
                 
                 table.put_item(Item={
-                    'image_id': object_key,
+                    'request_id': object_key,
                     'status': 'SUCCESS',
                     'result': result_text,
                     'drug_code': drug_code
