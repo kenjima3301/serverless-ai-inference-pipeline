@@ -85,6 +85,7 @@ jobs:
           IMAGE_TAG: ${{ steps.vars.outputs.COMMIT_SHORT_SHA }}
         working-directory: ./app
         run: |
+          aws s3 cp s3://ai-models-repository/model.onnx ./model.onnx
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
