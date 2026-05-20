@@ -8,6 +8,7 @@ def lambda_handler(event, context):
     # Lấy request_id từ query parameter (VD: /result?request_id=abc.jpg)
     query_params = event.get('queryStringParameters') or {}
     request_id = query_params.get('request_id')
+    # Dòng này để test xem có nhận được request_id không, có thể xóa sau khi xác nhận
     
     if not request_id:
         return {"statusCode": 400, "body": json.dumps({"error": "Thiếu tham số request_id"})}
