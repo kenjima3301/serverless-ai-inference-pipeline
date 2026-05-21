@@ -53,7 +53,12 @@ jobs:
         with:
           terraform_version: 1.15.3
       - run: terraform init
-      - run: terraform apply -target="module.container_registry" -auto-approve    
+      - name: Terraform Plan for ECR
+        if: github.event_name == 'pull_request'
+        run: terraform plan -target="module.container_registry"
+      - name: Terraform Apply for ECR
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: terraform apply -target="module.container_registry" -auto-approve    
 
   # Job 2: Build and push Docker image if there are changes in the app directory
   build-and-push:
@@ -78,7 +83,7 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Build and Push Docker Image
+      - name: Build Docker Image (Dry-run for PR)
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
@@ -87,6 +92,14 @@ jobs:
         run: |
           aws s3 cp s3://ai-models-repository/model.onnx ./model.onnx
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      - name: Push Docker Image to ECR
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.vars.outputs.COMMIT_SHORT_SHA }}
+        working-directory: ./app
+        run: |
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -113,7 +126,13 @@ jobs:
         with:
           terraform_version: 1.15.3
       - run: terraform init
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        env:
+          TF_VAR_image_tag: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
+        run: terraform plan
       - name: Terraform Apply
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
           TF_VAR_image_tag: ${{ needs.build-and-push.outputs.image_tag || 'latest' }}
         run: terraform apply -auto-approve
