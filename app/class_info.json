@@ -1,206 +1,206 @@
 {
   "0": {
-    "name": "Acemuc 200mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Acemuc",
+    "drug_code": "VD-18156-12"
   },
   "1": {
     "name": "Acetylcystein",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100824824"
   },
   "2": {
-    "name": "Actadol 500mg MEDIPHARCO",
-    "drug_code": "PLACEHOLDER"
+    "name": "Actadol 500",
+    "drug_code": "893100359023"
   },
   "3": {
     "name": "Alaxan",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100840624"
   },
   "4": {
-    "name": "Ambroxol 30mg Domesco",
-    "drug_code": "PLACEHOLDER"
+    "name": "Ambroxol 30mg",
+    "drug_code": "893100350623"
   },
   "5": {
     "name": "Ameflu",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100102923"
   },
   "6": {
-    "name": "Anpemux 250mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Anpemux",
+    "drug_code": "893100346923"
   },
   "7": {
-    "name": "Azibiotic 500 Medipharco",
-    "drug_code": "PLACEHOLDER"
+    "name": "Azibiotic 500",
+    "drug_code": "893110271523"
   },
   "8": {
-    "name": "Azoltel 400mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Azoltel 400",
+    "drug_code": "893100253000"
   },
   "9": {
-    "name": "Bisolvon 8mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Bisolvon Tablets",
+    "drug_code": "VN-15737-12"
   },
   "10": {
-    "name": "Bonlutin Catalent",
-    "drug_code": "PLACEHOLDER"
+    "name": "Bonlutin",
+    "drug_code": "VN-11750-11"
   },
   "11": {
     "name": "Briozcal",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "930100988724"
   },
   "12": {
     "name": "Bromhexin 4mg",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100141524"
   },
   "13": {
     "name": "Bromhexin 8mg",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100379524"
   },
   "14": {
-    "name": "Caldihasan 1250mg 125IU",
-    "drug_code": "PLACEHOLDER"
+    "name": "Caldihasan",
+    "drug_code": "VD-20539-14"
   },
   "15": {
-    "name": "Carflem 375mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Carflem",
+    "drug_code": "VD-23201-15"
   },
   "16": {
-    "name": "Cetirizin 10mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Cetirizin",
+    "drug_code": "893100321624"
   },
   "17": {
-    "name": "Clorpheniramin 4mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Clorpheniramin",
+    "drug_code": "893100483624"
   },
   "18": {
-    "name": "Delcogen ND 500mg UNITED",
-    "drug_code": "PLACEHOLDER"
+    "name": "Decolgen ND",
+    "drug_code": "VD-22382-15"
   },
   "19": {
-    "name": "Eugica MEGA We care",
-    "drug_code": "PLACEHOLDER"
+    "name": "Eugica",
+    "drug_code": "893100512124"
   },
   "20": {
-    "name": "Exopadin 60mg Truong Tho",
-    "drug_code": "PLACEHOLDER"
+    "name": "Exopadin",
+    "drug_code": "VD-35049-21"
   },
   "21": {
     "name": "Fefasdin 60",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100097023"
   },
   "22": {
-    "name": "Fucagi 500mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Fucagi",
+    "drug_code": "893100431024"
   },
   "23": {
-    "name": "Glotadol 650 Abbott",
-    "drug_code": "PLACEHOLDER"
+    "name": "Glotadol 650",
+    "drug_code": "893100249700"
   },
   "24": {
     "name": "Hapacol 325",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100095323"
   },
   "25": {
-    "name": "Hapacol 650mg tablet",
-    "drug_code": "PLACEHOLDER"
+    "name": "Hapacol 650",
+    "drug_code": "893100013300"
   },
   "26": {
     "name": "LongHuyetPH",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "VD-23917-15"
   },
   "27": {
     "name": "Loratadin 10mg",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "VD-18488-13"
   },
   "28": {
     "name": "MagneB6 Corbiere",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100181824"
   },
   "29": {
-    "name": "Myhemo 305mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Myhemo",
+    "drug_code": "VD-35887-22"
   },
   "30": {
-    "name": "PanadolExtra tablet",
-    "drug_code": "PLACEHOLDER"
+    "name": "Panadol Extra",
+    "drug_code": "539100184523"
   },
   "31": {
     "name": "Panadol cold and flu",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "VD-16582-12"
   },
   "32": {
-    "name": "Strepsils cool",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Cool",
+    "drug_code": "VN-18071-14"
   },
   "33": {
-    "name": "Strepsils throat",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Throat Irritation & Cough",
+    "drug_code": "885100018524"
   },
   "34": {
-    "name": "Telfast kids 30mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Telfast Kids",
+    "drug_code": "893100404324"
   },
   "35": {
     "name": "Telfor 180",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100271023"
   },
   "36": {
     "name": "Terpinzoat",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "893100470424"
   },
   "37": {
-    "name": "Tocemux 200mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Tocemux",
+    "drug_code": "893100824824"
   },
   "38": {
     "name": "Tylenol capsule",
-    "drug_code": "PLACEHOLDER"
+    "drug_code": "N/A"
   },
   "39": {
-    "name": "Zinforcol 70mg tablet",
-    "drug_code": "PLACEHOLDER"
+    "name": "Zinforcol",
+    "drug_code": "VD-24409-16"
   },
   "40": {
-    "name": "alphachymotrypsin",
-    "drug_code": "PLACEHOLDER"
+    "name": "Alphachymotrypsin",
+    "drug_code": "VD-18417-13"
   },
   "41": {
-    "name": "amlodipine 5mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Amlodipin 5mg",
+    "drug_code": "893110824624"
   },
   "42": {
-    "name": "decolgen forte",
-    "drug_code": "PLACEHOLDER"
+    "name": "Decolgen Forte",
+    "drug_code": "893100340723"
   },
   "43": {
-    "name": "panactol 500mg",
-    "drug_code": "PLACEHOLDER"
+    "name": "Panactol",
+    "drug_code": "893100024300"
   },
   "44": {
-    "name": "sp ambroxol",
-    "drug_code": "PLACEHOLDER"
+    "name": "SP Ambroxol",
+    "drug_code": "893100328923"
   },
   "45": {
-    "name": "strepsils maxpro",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Maxpro",
+    "drug_code": "885100033223"
   },
   "46": {
-    "name": "strepsils orange",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Orange",
+    "drug_code": "885100033123"
   },
   "47": {
-    "name": "strepsils original",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Original",
+    "drug_code": "885100033023"
   },
   "48": {
-    "name": "strepsils soothing",
-    "drug_code": "PLACEHOLDER"
+    "name": "Strepsils Soothing Honey & Lemon",
+    "drug_code": "VN-16361-13"
   },
   "49": {
-    "name": "tiffy",
-    "drug_code": "PLACEHOLDER"
+    "name": "Tiffy Dey",
+    "drug_code": "VD-19229-13"
   },
   "50": {
-    "name": "upsa c",
+    "name": "Upsa-C",
     "drug_code": "PLACEHOLDER"
   }
 }
