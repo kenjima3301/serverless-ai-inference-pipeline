@@ -102,9 +102,10 @@ def lambda_handler(event, context):
 
                 # 6. Ghi kết quả vào DynamoDB
                 result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
+                request_id = object_key.replace('.zip', '')
                 
                 table.put_item(Item={
-                    'request_id': object_key,
+                    'request_id': request_id,
                     'status': 'SUCCESS',
                     'result': result_text,
                     'drug_code': drug_code
