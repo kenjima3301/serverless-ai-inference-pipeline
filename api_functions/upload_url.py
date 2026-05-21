@@ -4,8 +4,8 @@ s3_client = boto3.client('s3')
 
 def lambda_handler(event, context):
     bucket_name = os.environ['S3_BUCKET']
-    # Tạo tên file ngẫu nhiên để không bị trùng lặp
-    file_name = f"{uuid.uuid4()}.zip" 
+    request_id = str(uuid.uuid4())
+    file_name = f"{request_id}.zip" 
     
     # Tạo Presigned URL (Sống trong 5 phút = 300 giây)
     presigned_url = s3_client.generate_presigned_url(
@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps({
             "upload_url": presigned_url,
-            "request_id": file_name,
+            "request_id": request_id,
             "message": "Use upload_url to PUT file as binary body. Expires in 5 minutes."
         })
     }
