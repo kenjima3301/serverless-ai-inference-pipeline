@@ -46,8 +46,22 @@ def process_image_bytes(img_bytes):
     img_arr_final = np.transpose(img_arr_final, (2, 0, 1))
     return img_arr_final
 
+def update_dynamodb_status(request_id, status, result_msg="", drug_code="N/A", error_code=None):
+    item = {
+        'request_id': request_id,
+        'status': status,
+        'result': result_msg,
+        'drug_code': drug_code
+    }
+    # Nếu có mã lỗi thì mới đẩy vào item
+    if error_code:
+        item['error_code'] = error_code
+    table.put_item(Item=item)
+
 def lambda_handler(event, context):
     for sqs_record in event.get('Records', []):
+        request_id = None 
+        object_key = ""
         try:
             s3_event = json.loads(sqs_record['body'])
             
@@ -57,7 +71,8 @@ def lambda_handler(event, context):
             for s3_record in s3_event.get('Records', []):
                 bucket_name = s3_record['s3']['bucket']['name']
                 object_key = urllib.parse.unquote_plus(s3_record['s3']['object']['key'])
-                
+                request_id = object_key.replace('.zip', '')
+
                 print(f"Bắt đầu xử lý file: s3://{bucket_name}/{object_key}")
                 
                 # Tải file ZIP từ S3
@@ -77,7 +92,9 @@ def lambda_handler(event, context):
                             
                 del zip_bytes
                 if len(valid_images) < 2:
-                    print(f"[LỖI DỮ LIỆU] File ZIP thiếu ảnh hợp lệ (cần 2 ảnh, tìm thấy {len(valid_images)})")
+                    error_msg = f"Invalid data: ZIP file contains {len(valid_images)}/2 required images."
+                    update_dynamodb_status(request_id=request_id, status='FAILED', result_msg=error_msg, error_code='ERR_INSUFFICIENT_IMAGES')
+                    print(f"[DATA ERROR] {error_msg}")
                     continue
 
                 arr_top = process_image_bytes(valid_images[0])
@@ -102,22 +119,16 @@ def lambda_handler(event, context):
 
                 # 6. Ghi kết quả vào DynamoDB
                 result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
-                request_id = object_key.replace('.zip', '')
-                
-                table.put_item(Item={
-                    'request_id': request_id,
-                    'status': 'SUCCESS',
-                    'result': result_text,
-                    'drug_code': drug_code
-                })
-                
+                update_dynamodb_status(request_id, 'SUCCESS', result_text, drug_code)
                 print(f"Hoàn tất! Đã lưu DynamoDB: {object_key} -> {result_text}")
 
         except Exception as e:
-            print(f"[LỖI HỆ THỐNG] Lỗi xử lý SQS message: {str(e)}")
-            raise e
+            error_msg = f"System Error: {str(e)}"
+            print(f"[SYSTEM ERROR] {error_msg}")
+            if request_id:
+                update_dynamodb_status(request_id=request_id, status='FAILED', result_msg="The system encountered an error during AI processing.", error_code='ERR_INTERNAL_SYSTEM')
 
     return {
         'statusCode': 200,
-        'body': json.dumps('Xử lý SQS và lưu kết quả thành công!')
+        'body': json.dumps('SQS processing completed successfully!')
     }
