@@ -72,7 +72,7 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
   ```json
   {
     "status": "PENDING", 
-    "message": "Đang xử lý..."
+    "message": "Processing"
   }
   ```
 - **Response - Hoàn thành (200 OK):**
@@ -83,4 +83,16 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
     "drug_code": "VN-12345-19"
   }
   ```
+- **Response - Thất bại (200 OK):**
+  ```json
+  {
+    "status": "FAILED", 
+    "error_code": "ERR_INSUFFICIENT_IMAGES",
+    "message": "Invalid data: ZIP file contains 1/2 required images."
+  }
+- **Response - Lỗi sai cú pháp (400 Bad Request):**
+  ```json
+  {
+    "error": "Missing request_id parameter"
+  }
 
