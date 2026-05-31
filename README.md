@@ -54,7 +54,7 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
   ```json
   {
     "upload_url": "https://ai-upload-images-dev...s3.amazonaws.com/uuid.jpg?X-Amz-Signature=...",
-    "request_id": "uuid.zip",
+    "request_id": "uuid",
     "message": "Use upload_url to PUT file as binary body. Expires in 5 minutes."
   }
   ```
