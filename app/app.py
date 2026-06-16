@@ -119,7 +119,7 @@ def lambda_handler(event, context):
 
                 # 6. Ghi kết quả vào DynamoDB
                 result_text = f"{drug_name} (Confidence: {top_prob*100:.2f}%)"
-                update_dynamodb_status(request_id, 'SUCCESS', result_text, drug_code)
+                update_dynamodb_status(request_id, 'COMPLETED', result_text, drug_code)
                 print(f"Hoàn tất! Đã lưu DynamoDB: {object_key} -> {result_text}")
 
         except Exception as e:
