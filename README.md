@@ -65,7 +65,7 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
 - **Headers:** `Content-Type: application/zip` *(Bắt buộc, nếu thiếu AWS sẽ báo lỗi Signature).*
 - **Body:** File zip dạng Binary (chứa 2 ảnh chụp ở các góc độ khác nhau của thuốc).
 
-### 3. Lấy kết quả AI (Long Polling)
+### 3. Lấy kết quả phân loại
 - **Endpoint:** `GET /result?request_id={request_id}`
 - **Mô tả:** Client gọi liên tục (mỗi 2-3s) bằng `request_id` nhận được ở Bước 1 để lấy kết quả.
 - **Response - Đang xử lý (202 Accepted):**
@@ -78,7 +78,7 @@ Hệ thống cung cấp 2 endpoints thông qua HTTP API Gateway để Client tư
 - **Response - Hoàn thành (200 OK):**
   ```json
   {
-    "status": "SUCCESS", 
+    "status": "COMPLETED", 
     "result": "Panadol (Confidence: 99%)",
     "drug_code": "VN-12345-19"
   }
